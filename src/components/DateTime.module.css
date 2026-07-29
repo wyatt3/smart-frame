@@ -1,0 +1,25 @@
+.date-time {
+    text-align: right;
+}
+
+.date {
+    font-size: 1.5rem;
+    line-height: 1.225;
+    color: #ddd;
+    margin-bottom: 0.25rem;
+}
+
+.time {
+    font-size: 3.25rem;
+    line-height: 1;
+    font-weight: 300;
+}
+
+.seconds {
+    margin-left: 6px;
+    margin-right: 12px;
+    color: #ddd;
+    font-size: 50%;
+    line-height: 50%;
+    vertical-align: super;
+}

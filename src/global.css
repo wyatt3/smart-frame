@@ -1,0 +1,37 @@
+:root {
+    font-family: "Roboto";
+    font-weight: 400;
+}
+
+.module {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.66);
+    border-radius: 10px;
+    padding: 0.75rem;
+    color: #fff;
+    z-index: 1;
+}
+
+.top-left {
+    position: fixed;
+    top: 35px;
+    left: 35px;
+}
+
+.top-right {
+    position: fixed;
+    top: 35px;
+    right: 35px;
+}
+
+.bottom-left {
+    position: fixed;
+    bottom: 35px;
+    left: 35px;
+}
+
+.bottom-right {
+    position: fixed;
+    bottom: 35px;
+    right: 35px;
+}
