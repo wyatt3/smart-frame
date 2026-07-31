@@ -6,6 +6,7 @@ function DateTime({ position }: { position: string }) {
   const [minute, setMinute] = useState("");
   const [second, setSecond] = useState("");
   const [ampm, setAmPm] = useState("");
+  const [day, setDay] = useState("");
   const [date, setDate] = useState("");
 
   useEffect(() => {
@@ -16,7 +17,7 @@ function DateTime({ position }: { position: string }) {
       setAmPm(hours >= 12 ? "PM" : "AM");
       setMinute(now.getMinutes().toString().padStart(2, "0"));
       setSecond(now.getSeconds().toString().padStart(2, "0"));
-      const dayName = now.getDay();
+      const dayOfWeek = now.getDay();
       const dayNumber = now.getDate();
       const month = now.getMonth();
       const dayNumberSuffix =
@@ -37,8 +38,8 @@ function DateTime({ position }: { position: string }) {
         "November",
         "December",
       ];
-
-      setDate(`${dayNames[dayName]}, ${monthNames[month]} ${dayNumber}${dayNumberSuffix}`);
+      setDay(dayNames[dayOfWeek]);
+      setDate(`${monthNames[month]} ${dayNumber}${dayNumberSuffix}`);
     }
 
     tick();
@@ -47,9 +48,17 @@ function DateTime({ position }: { position: string }) {
   });
   return (
     <div className={`module ${position} ${styles["date-time"]}`}>
-      <div className={styles.date}>{date}</div>
+      <div className={styles.date}>
+        <span>{day}</span>
+        <span>{date}</span>
+      </div>
+      <hr></hr>
       <div className={styles.time}>
-        <span>{hour}:{minute}</span><span className={styles.seconds}>{second}</span><span>{ampm}</span>
+        <span>
+          {hour}:{minute}
+        </span>
+        <span className={styles.seconds}>{second}</span>
+        <span>{ampm}</span>
       </div>
     </div>
   );
