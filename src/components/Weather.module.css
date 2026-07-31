@@ -1,0 +1,76 @@
+.weather {
+    min-width: 200px;
+}
+
+.current {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+.weathericon {
+    color: #fff;
+    font-size: 3.25rem;
+    line-height: 1;
+    margin-right: 0.75rem;
+}
+
+.temp {
+    font-size: 4rem;
+    line-height: 1;
+    font-weight: 300;
+}
+
+.feelsLike {
+    font-size: 1.25rem;
+    color: #bbb;
+    margin-top: 0.25rem;
+    margin-bottom: 0.75rem;
+    text-align: right;
+}
+
+.forecast {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dayRow {
+    height: 35px;
+}
+
+.day {
+    text-align: right;
+    padding-right: 15px;
+    color: #bbb;
+}
+
+.weatherIconCell {
+    color: #fff;
+    padding-right: 30px;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.forecastTemp {
+    font-size: 1.35rem;
+    text-align: right;
+}
+.hot {
+    color: #ff8e99;
+}
+
+.cold {
+    color: #a1ccf6;
+}
+
+.minTemp {
+    padding-left: 20px;
+}
+
+.message {
+    padding: 0.25rem 0;
+}
+
+.dimmed {
+    color: #bbb;
+}

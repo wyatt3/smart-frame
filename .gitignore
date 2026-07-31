@@ -13,3 +13,4 @@ Thumbs.db
 *.swo
 *~
 public/img/*
+src/config.ts
