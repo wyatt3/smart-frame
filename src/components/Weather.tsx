@@ -94,8 +94,8 @@ function Weather({
   const [current, setCurrent] = useState<CurrentWeather | null>(null);
   const [forecast, setForecast] = useState<DailyForecast[]>([]);
   const [error, setError] = useState("");
-  const [hotThreshold, setHotThreshold] = useState(config.weather.hot_threshold);
-  const [coldThreshold, setColdThreshold] = useState(config.weather.cold_threshold);
+  const [hotThreshold] = useState(config.weather.hot_threshold);
+  const [coldThreshold] = useState(config.weather.cold_threshold);
 
   useEffect(() => {
     let cancelled = false;
