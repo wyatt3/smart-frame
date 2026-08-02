@@ -8,4 +8,10 @@ export const config = {
     hot_threshold: 100,
     cold_threshold: 32,
   },
+  background: {
+      darkWindow: {
+        start: "22:00", // 24h "HH:MM" when the background should go black
+        end: "07:00",
+      },
+  },
 } as const;
