@@ -34,6 +34,8 @@ function Background() {
   useEffect(() => {
     let currentImage = 0;
     let images: string[] = [];
+    let preloaded: string | null = null;
+    let preloadToken = 0;
 
     function shuffleArray(array: string[]) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -42,35 +44,70 @@ function Background() {
       }
     }
 
-    function showImage(name: string) {
-      const img = new Image();
+    function loadImage(name: string): Promise<void> {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = async () => {
+          try {
+            await img.decode();
+          } catch {
+            // ignore decode failures; the image may still render
+          }
+          resolve();
+        };
+        img.onerror = reject;
+        img.src = IMG_URL_PREFIX + encodeURIComponent(name);
+      });
+    }
+
+    function preloadNext(currentName: string) {
+      if (images.length === 0) return;
+      const nextName = images[currentImage % images.length];
+      if (nextName === currentName || preloaded === nextName) return;
+      const token = ++preloadToken;
+      loadImage(nextName)
+        .then(() => {
+          if (token === preloadToken) preloaded = nextName;
+        })
+        .catch(() => {});
+    }
+
+    async function showImage(name: string) {
+      if (preloaded !== name) {
+        try {
+          await loadImage(name);
+        } catch {
+          return;
+        }
+      }
+      preloaded = null;
+
       const url = IMG_URL_PREFIX + encodeURIComponent(name);
-      img.onload = () => {
-        const newKey = ++keyRef.current;
-        setLayers((prev) => [...prev.slice(-1), { url, key: newKey, visible: false }]);
+      const newKey = ++keyRef.current;
+      setLayers((prev) => [...prev.slice(-1), { url, key: newKey, visible: false }]);
 
-        const raf = window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => {
-            setLayers((prev) =>
-              prev.map((layer) =>
-                layer.key === newKey
-                  ? { ...layer, visible: true }
-                  : layer.key === newKey - 1
-                    ? { ...layer, visible: false }
-                    : layer,
-              ),
-            );
-          });
+      const raf = window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setLayers((prev) =>
+            prev.map((layer) =>
+              layer.key === newKey
+                ? { ...layer, visible: true }
+                : layer.key === newKey - 1
+                  ? { ...layer, visible: false }
+                  : layer,
+            ),
+          );
         });
-        rafsRef.current.push(raf);
+      });
+      rafsRef.current.push(raf);
 
-        const timer = window.setTimeout(
-          () => setLayers((prev) => prev.filter((layer) => layer.key !== newKey - 1)),
-          TRANSITION_MS + 200,
-        );
-        timersRef.current.push(timer);
-      };
-      img.src = url;
+      const timer = window.setTimeout(
+        () => setLayers((prev) => prev.filter((layer) => layer.key !== newKey - 1)),
+        TRANSITION_MS + 200,
+      );
+      timersRef.current.push(timer);
+
+      preloadNext(name);
     }
 
     function checkImages() {
@@ -90,6 +127,7 @@ function Background() {
     const id = setInterval(checkImages, INTERVAL_MS);
     return () => {
       clearInterval(id);
+      preloadToken++;
       timersRef.current.forEach((timer) => window.clearTimeout(timer));
       rafsRef.current.forEach((raf) => window.cancelAnimationFrame(raf));
     };

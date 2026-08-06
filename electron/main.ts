@@ -174,7 +174,7 @@ function startManagerServer() {
         const data = await fsp.readFile(filePath);
         res.writeHead(200, {
           "Content-Type": IMAGE_MIME[path.extname(name).toLowerCase()] ?? "application/octet-stream",
-          "Cache-Control": "no-store",
+          "Cache-Control": "public, max-age=86400",
         });
         res.end(data);
         return;
@@ -258,7 +258,7 @@ app.whenReady().then(() => {
       status: 200,
       headers: {
         "Content-Type": IMAGE_MIME[path.extname(filePath).toLowerCase()] ?? "application/octet-stream",
-        "Cache-Control": "no-store",
+        "Cache-Control": "public, max-age=86400",
       },
     });
   });
