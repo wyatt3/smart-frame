@@ -9,6 +9,10 @@ export const config = {
     cold_threshold: 32,
   },
   background: {
+      display: {
+        width: 1920, // frame's native resolution
+        height: 1080,
+      },
       darkWindow: {
         start: "22:00", // 24h "HH:MM" when the background should go black
         end: "07:00",

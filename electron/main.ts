@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol } from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage, protocol } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import os from "node:os";
@@ -7,6 +7,7 @@ import { readdirSync, existsSync } from "node:fs";
 import { promises as fsp } from "node:fs";
 import type { AddressInfo } from "node:net";
 import managerHtml from "./manager.html?raw";
+import { config } from "../src/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -119,6 +120,33 @@ function resolveImagePath(name: string): string | null {
   return null;
 }
 
+const DISPLAY = config.background.display;
+
+function processImageForDisplay(buf: Buffer, filename: string): { data: Buffer; ext: string } | null {
+  const ext = path.extname(filename).toLowerCase();
+  if (ext === ".gif") return null;
+
+  const image = nativeImage.createFromBuffer(buf);
+  if (image.isEmpty()) return null;
+
+  const { width: sw, height: sh } = image.getSize();
+  if (sw === 0 || sh === 0) return null;
+
+  const coverScale = Math.max(DISPLAY.width / sw, DISPLAY.height / sh);
+  if (coverScale >= 1) return { data: buf, ext };
+
+  let out = image.resize({ width: Math.ceil(sw * coverScale), quality: "best" });
+  const size = out.getSize();
+  const cropW = Math.min(DISPLAY.width, size.width);
+  const cropH = Math.min(DISPLAY.height, size.height);
+  const x = Math.round((size.width - cropW) / 2);
+  const y = Math.round((size.height - cropH) / 2);
+  out = out.crop({ x, y, width: cropW, height: cropH });
+
+  if (ext === ".png") return { data: out.toPNG(), ext };
+  return { data: out.toJPEG(90), ext: ext === ".webp" ? ".jpg" : ext };
+}
+
 function getLocalIp(): string {
   const ifaces = os.networkInterfaces();
   for (const addrs of Object.values(ifaces)) {
@@ -194,15 +222,19 @@ function startManagerServer() {
           sendJson(res, 400, { error: "Empty request body" });
           return;
         }
+        const raw = Buffer.concat(chunks);
+        const processed = processImageForDisplay(raw, name);
+        const data = processed?.data ?? raw;
+        const finalName = processed ? `${name.slice(0, -path.extname(name).length)}${processed.ext}` : name;
         const uploadDir = getUploadDir();
         await fsp.mkdir(uploadDir, { recursive: true });
-        const ext = path.extname(name);
-        const stem = name.slice(0, -ext.length);
-        let filePath = path.join(uploadDir, name);
+        const ext = path.extname(finalName);
+        const stem = finalName.slice(0, -ext.length);
+        let filePath = path.join(uploadDir, finalName);
         for (let i = 1; existsSync(filePath); i++) {
           filePath = path.join(uploadDir, `${stem}-${i}${ext}`);
         }
-        await fsp.writeFile(filePath, Buffer.concat(chunks));
+        await fsp.writeFile(filePath, data);
         sendJson(res, 201, { name: path.basename(filePath) });
         return;
       }
