@@ -3,9 +3,9 @@
   $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   appId: "YourAppID",
   asar: true,
-  productName: "YourAppName",
+  productName: "SmartFrame",
   directories: {
-    output: "release/${version}",
+    output: "release",
   },
   files: ["dist", "dist-electron"],
   mac: {

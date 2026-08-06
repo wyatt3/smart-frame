@@ -1,5 +1,10 @@
 /// <reference types="vite-plugin-electron/electron-env" />
 
+declare module "*.html?raw" {
+  const content: string;
+  export default content;
+}
+
 declare namespace NodeJS {
   interface ProcessEnv {
     /**

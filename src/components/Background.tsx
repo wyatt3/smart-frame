@@ -3,6 +3,7 @@ import styles from "./Background.module.css";
 import { config } from "../config";
 const INTERVAL_MS = 120_000;
 const TRANSITION_MS = 1_000;
+const IMG_URL_PREFIX = "smartframe-img://local/";
 
 interface Layer {
   url: string;
@@ -41,8 +42,9 @@ function Background() {
       }
     }
 
-    function showImage(url: string) {
+    function showImage(name: string) {
       const img = new Image();
+      const url = IMG_URL_PREFIX + encodeURIComponent(name);
       img.onload = () => {
         const newKey = ++keyRef.current;
         setLayers((prev) => [...prev.slice(-1), { url, key: newKey, visible: false }]);
@@ -75,11 +77,11 @@ function Background() {
       window.ipcRenderer.invoke("get-images").then((result: string[]) => {
         const same = images.length === result.length && images.every((img) => result.includes(img));
         if (same) {
-          showImage("/img/" + images[currentImage++ % result.length]);
+          showImage(images[currentImage++ % result.length]);
         } else {
           shuffleArray(result);
           images = result;
-          showImage("/img/" + images[currentImage++ % result.length]);
+          showImage(images[currentImage++ % result.length]);
         }
       });
     }
