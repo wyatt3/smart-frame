@@ -1,156 +1,295 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SmartFrame Manager</title>
-<style>
-  :root { --bg: #0e0e10; --panel: #1a1a1e; --text: #e8e8ea; --dim: #9a9aa2; --accent: #4f8cff; --danger: #ff5a5a; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; min-height: 100vh; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 28px; border-bottom: 1px solid #2a2a2f; }
-  header h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.3px; }
-  header .sub { color: var(--dim); font-size: 13px; margin-top: 2px; }
-  .actions { display: flex; gap: 12px; align-items: center; }
-  button { background: var(--panel); color: var(--text); border: 1px solid #333; border-radius: 8px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
-  button:hover { border-color: var(--accent); }
-  .upload-btn { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  input[type="file"] { display: none; }
-  main { padding: 24px 28px; max-width: 1200px; margin: 0 auto; }
-  .empty { color: var(--dim); text-align: center; padding: 60px 0; font-size: 15px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-  .card { background: var(--panel); border: 1px solid #2a2a2f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
-  .card img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #000; display: block; }
-  .card .meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; }
-  .card .name { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card .delete { background: none; border: none; color: var(--danger); font-size: 13px; padding: 4px 6px; cursor: pointer; }
-  .card .delete:hover { text-decoration: underline; }
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid #333; border-radius: 8px; padding: 10px 16px; font-size: 13px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
-  #toast.show { opacity: 1; }
-  #toast.error { border-color: var(--danger); color: var(--danger); }
-  .busy { opacity: 0.6; pointer-events: none; }
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartFrame Manager</title>
+    <style>
+        :root {
+            --bg: #0e0e10;
+            --panel: #1a1a1e;
+            --text: #e8e8ea;
+            --dim: #9a9aa2;
+            --accent: #1c56c1;
+            --danger: #ff5a5a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 20px 28px;
+            border-bottom: 1px solid #2a2a2f;
+        }
+
+        header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        header .sub {
+            color: var(--dim);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        button {
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+        }
+
+        .upload-btn {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        main {
+            padding: 24px 28px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .empty {
+            color: var(--dim);
+            text-align: center;
+            padding: 60px 0;
+            font-size: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid #2a2a2f;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: #000;
+            display: block;
+        }
+
+        .card .meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+        }
+
+        .card .name {
+            font-size: 12px;
+            color: var(--dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card .delete {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 13px;
+            padding: 4px 6px;
+            cursor: pointer;
+        }
+
+        .card .delete:hover {
+            text-decoration: underline;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+
+        #toast.error {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .busy {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
 </head>
+
 <body>
-<header>
-  <div>
-    <h1>SmartFrame Manager</h1>
-    <div class="sub" id="sub"></div>
-  </div>
-  <div class="actions">
-    <input type="file" id="fileInput" accept="image/*" multiple>
-    <label for="fileInput" class="upload-btn" id="uploadLabel">Upload images</label>
-    <button id="refresh">Refresh</button>
-  </div>
-</header>
-<main>
-  <div id="grid" class="grid"></div>
-  <div id="empty" class="empty" hidden>No images yet — upload some above.</div>
-</main>
-<div id="toast"></div>
-<script>
-  const ALLOWED = /\.(jpg|jpeg|png|gif|webp)$/i;
-  const grid = document.getElementById("grid");
-  const empty = document.getElementById("empty");
-  const toastEl = document.getElementById("toast");
-  const fileInput = document.getElementById("fileInput");
-  const uploadLabel = document.getElementById("uploadLabel");
-  const refreshBtn = document.getElementById("refresh");
-  document.getElementById("sub").textContent = window.location.host;
+    <header>
+        <div>
+            <h1>SmartFrame Manager</h1>
+        </div>
+        <div class="actions">
+            <input type="file" id="fileInput" accept="image/*" multiple>
+            <label for="fileInput" class="upload-btn" id="uploadLabel">Upload images</label>
+        </div>
+    </header>
+    <main>
+        <div id="grid" class="grid"></div>
+        <div id="empty" class="empty" hidden>No images yet — upload some above.</div>
+    </main>
+    <div id="toast"></div>
+    <script>
+        const ALLOWED = /\.(jpg|jpeg|png|gif|webp)$/i;
+        const grid = document.getElementById("grid");
+        const empty = document.getElementById("empty");
+        const toastEl = document.getElementById("toast");
+        const fileInput = document.getElementById("fileInput");
+        const uploadLabel = document.getElementById("uploadLabel");
 
-  let toastTimer = null;
-  function toast(message, isError) {
-    toastEl.textContent = message;
-    toastEl.classList.toggle("error", !!isError);
-    toastEl.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3000);
-  }
+        let toastTimer = null;
+        function toast(message, isError) {
+            toastEl.textContent = message;
+            toastEl.classList.toggle("error", !!isError);
+            toastEl.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3000);
+        }
 
-  async function loadImages() {
-    try {
-      const res = await fetch("/api/images");
-      if (!res.ok) throw new Error("Failed to load images");
-      const { images } = await res.json();
-      render(images);
-    } catch (err) {
-      toast(err.message, true);
-    }
-  }
+        async function loadImages() {
+            try {
+                const res = await fetch("/api/images");
+                if (!res.ok) throw new Error("Failed to load images");
+                const { images } = await res.json();
+                render(images);
+            } catch (err) {
+                toast(err.message, true);
+            }
+        }
 
-  function render(images) {
-    grid.textContent = "";
-    empty.hidden = images.length > 0;
-    for (const item of images) {
-      const name = item.name;
-      const card = document.createElement("div");
-      card.className = "card";
-      const img = document.createElement("img");
-      img.src = "/img/" + encodeURIComponent(name);
-      img.alt = name;
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      const label = document.createElement("span");
-      label.className = "name";
-      label.textContent = name;
-      meta.append(label);
-      if (item.deletable) {
-        const del = document.createElement("button");
-        del.className = "delete";
-        del.textContent = "Delete";
-        del.addEventListener("click", () => deleteImage(name));
-        meta.append(del);
-      }
-      card.append(img, meta);
-      grid.append(card);
-    }
-  }
+        function render(images) {
+            grid.textContent = "";
+            empty.hidden = images.length > 0;
+            for (const item of images) {
+                const name = item.name;
+                const card = document.createElement("div");
+                card.className = "card";
+                const img = document.createElement("img");
+                img.src = "/img/" + encodeURIComponent(name);
+                img.alt = name;
+                const meta = document.createElement("div");
+                meta.className = "meta";
+                if (item.deletable) {
+                    const del = document.createElement("button");
+                    del.className = "delete";
+                    del.textContent = "Delete";
+                    del.addEventListener("click", () => deleteImage(name));
+                    meta.append(del);
+                }
+                card.append(img, meta);
+                grid.append(card);
+            }
+        }
 
-  async function deleteImage(name) {
-    if (!confirm("Delete " + name + "?")) return;
-    try {
-      const res = await fetch("/api/images/" + encodeURIComponent(name), { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      toast("Deleted " + name);
-      await loadImages();
-    } catch (err) {
-      toast(err.message, true);
-    }
-  }
+        async function deleteImage(name) {
+            if (!confirm("Delete " + name + "?")) return;
+            try {
+                const res = await fetch("/api/images/" + encodeURIComponent(name), { method: "DELETE" });
+                if (!res.ok) throw new Error("Delete failed");
+                toast("Deleted " + name);
+                await loadImages();
+            } catch (err) {
+                toast(err.message, true);
+            }
+        }
 
-  async function uploadFiles(files) {
-    let ok = 0;
-    for (const file of files) {
-      if (!ALLOWED.test(file.name)) {
-        toast("Skipped " + file.name + " (unsupported type)", true);
-        continue;
-      }
-      try {
-        const res = await fetch("/api/images?name=" + encodeURIComponent(file.name), { method: "POST", body: file });
-        if (!res.ok) throw new Error("Upload failed: " + file.name);
-        ok++;
-      } catch (err) {
-        toast(err.message, true);
-      }
-    }
-    if (ok > 0) toast("Uploaded " + ok + " image" + (ok === 1 ? "" : "s"));
-    await loadImages();
-  }
+        async function uploadFiles(files) {
+            let ok = 0;
+            for (const file of files) {
+                if (!ALLOWED.test(file.name)) {
+                    toast("Skipped " + file.name + " (unsupported type)", true);
+                    continue;
+                }
+                try {
+                    const res = await fetch("/api/images?name=" + encodeURIComponent(file.name), { method: "POST", body: file });
+                    if (!res.ok) throw new Error("Upload failed: " + file.name);
+                    ok++;
+                } catch (err) {
+                    toast(err.message, true);
+                }
+            }
+            if (ok > 0) toast("Uploaded " + ok + " image" + (ok === 1 ? "" : "s"));
+            await loadImages();
+        }
 
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files.length > 0) {
-      const files = Array.from(fileInput.files);
-      uploadLabel.classList.add("busy");
-      uploadFiles(files).finally(() => {
-        uploadLabel.classList.remove("busy");
-        fileInput.value = "";
-      });
-    }
-  });
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files.length > 0) {
+                const files = Array.from(fileInput.files);
+                uploadLabel.classList.add("busy");
+                uploadFiles(files).finally(() => {
+                    uploadLabel.classList.remove("busy");
+                    fileInput.value = "";
+                });
+            }
+        });
 
-  refreshBtn.addEventListener("click", loadImages);
-  loadImages();
-  setInterval(loadImages, 10000);
-</script>
+        loadImages();
+    </script>
 </body>
+
 </html>
